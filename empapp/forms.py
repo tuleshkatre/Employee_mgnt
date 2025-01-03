@@ -18,16 +18,4 @@ class AttendenceForm(forms.ModelForm):
         model = Attendance
         fields = ['employee', 'date', 'status']
 
-class CheckInForm(forms.ModelForm):
-    class Meta:
-        model = CheckInOut
-        fields = ['employee', 'date', 'check_in']
-
-class CheckoutForm(forms.ModelForm):
-    class Meta:
-        model = CheckInOut
-        fields = ['employee', 'date', 'check_out']
-
-
-
 
