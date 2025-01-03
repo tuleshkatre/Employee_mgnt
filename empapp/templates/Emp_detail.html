@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block extra_styles %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f2f2f2;
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .container {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 800px;
+        margin-top: 20px;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .employee {
+        border-bottom: 1px solid #ccc;
+        padding: 10px 0;
+    }
+
+    .employee:last-child {
+        border-bottom: none;
+    }
+
+    .employee img {
+        max-width: 100px;
+        height: auto;
+        margin-top: 10px;
+        border-radius: 5px;
+    }
+
+    .navbar {
+        background-color: #333;
+        color: white;
+        width: 100%;
+        padding: 15px 20px;
+        box-sizing: border-box;
+        margin-bottom: 20px;
+    }
+
+    .nav-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .nav-button {
+        color: white;
+        text-decoration: none;
+        padding: 5px 10px;
+        background-color: #555;
+        border-radius: 3px;
+        transition: background-color 0.3s ease;
+    }
+
+    .nav-button:hover {
+        background-color: #777;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="navbar">
+    <h1>Employee</h1>
+    <div class="nav-buttons">
+        <a href="{% url 'task_list' %}" class="nav-button">Task</a>
+        <a href="{% url 'user_logout' %}" class="nav-button">Logout</a>
+        <a href="{% url 'check_in' %}" class="nav-button">Checkin</a>
+        <a href="{% url 'check_out' %}" class="nav-button">Checkout</a>
+    </div>
+</div>
+
+<div class="container">
+    <h1>Employee Detail</h1>
+    {% for emp in data %}
+    <div class="employee">
+        <p><strong>First Name:</strong> {{ emp.first_name }}</p>
+        <p><strong>Last Name:</strong> {{ emp.last_name }}</p>
+        <p><strong>Username:</strong> {{ emp.username }}</p>
+        <p><strong>Email:</strong> {{ emp.email }}</p>
+        <p><strong>Profile Image:</strong></p>
+        <img src="{{ emp.image.url }}" alt="{{ emp.first_name }} {{ emp.last_name }}">
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

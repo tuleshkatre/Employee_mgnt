@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block extra_styles %}
+<style>
+    .navbar {
+        background-color: #333;
+        color: white;
+        width: 100%;
+        padding: 15px 20px;
+        box-sizing: border-box;
+        margin-bottom: 20px;
+    }
+
+    .nav-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .nav-button {
+        color: white;
+        text-decoration: none;
+        padding: 5px 10px;
+        background-color: #555;
+        border-radius: 3px;
+        transition: background-color 0.3s ease;
+    }
+
+    .nav-button:hover {
+        background-color: #777;
+    }
+
+    .otp-container {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .otp-container form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .otp-container input,
+    .otp-container button {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .otp-container button {
+        background-color: #333;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .otp-container button:hover {
+        background-color: #555;
+    }
+
+    .error-message {
+        color: red;
+        text-align: center;
+    }
+
+    .message {
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="navbar">
+    <h1>Employee</h1>
+    <div class="nav-buttons">
+    </div>
+</div>
+
+<div class="otp-container">
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="email" value="{{ email }}">
+        <label>OTP:</label>
+        <input type="number" name="otp" required>
+        <button type="submit">Verify OTP</button>
+    </form>
+    <p class="message">{{ message }}</p>
+    <p class="error-message">{{ error }}</p>
+</div>
+{% endblock %}
