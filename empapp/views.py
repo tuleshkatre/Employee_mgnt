@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .forms import EmpCreate, TaskForm , AttendenceForm , CheckInForm, CheckoutForm
+from .forms import EmpCreate, TaskForm , AttendenceForm 
 from .models import Employee, Task , Attendance , CheckInOut, UserOTP
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth import logout
@@ -9,6 +9,10 @@ from django.utils.timezone import now
 from django.core.mail import send_mail
 import random
 
+def home(request):
+    if request.user.is_authenticated:
+        return redirect('read')
+    return render(request , 'home.html')
 
 def emp_create(request):
     if request.user.is_authenticated:

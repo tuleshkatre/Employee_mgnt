@@ -82,6 +82,7 @@
 <div class="navbar">
     <h1>Employee</h1>
     <div class="nav-buttons">
+        <a href="{% url 'home' %}" class="nav-button">Home</a>
         <a href="{% url 'create' %}" class="nav-button">Signup</a>
     </div>
 </div>
@@ -90,7 +91,7 @@
     <h1>Login</h1>
     <form method="post">
         {% csrf_token %}
-        <label>Email:</label>
+        <label>Email</label>
         <input type="email" name="email" required>
         <button type="submit">Send OTP</button>
     </form>

@@ -23,6 +23,7 @@ from empapp import views
 urlpatterns = [
     
     path('admin/', admin.site.urls),
+    path('', views.home, name='home'),
     path('create/', views.emp_create, name='create'),
     path('login/', views.user_login, name='login'),
     path('read/', views.read, name='read'),

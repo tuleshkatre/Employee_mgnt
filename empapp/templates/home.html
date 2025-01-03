@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block extra_styles %}
+<style>
+    .navbar {
+        background-color: #333;
+        color: white;
+        width: 100%;
+        padding: 15px 20px;
+        box-sizing: border-box;
+        margin-bottom: 20px;
+    }
+
+    .nav-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .nav-button {
+        color: white;
+        text-decoration: none;
+        padding: 5px 10px;
+        background-color: #555;
+        border-radius: 3px;
+        transition: background-color 0.3s ease;
+    }
+
+    .nav-button:hover {
+        background-color: #777;
+    }
+
+    .homepage-image img {
+    width: 100%; 
+    max-width: 1200px; 
+    height: 600px; 
+    display: block;
+    margin: 0 auto;x
+    border-radius: 10px; 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="navbar">
+    <h1>Employee</h1>
+    <div class="nav-buttons">
+        <a href="{% url 'login' %}" class="nav-button">Login</a>
+        <a href="{% url 'create' %}" class="nav-button">Signup</a>
+    </div>
+</div>
+<div class="homepage-image">
+    <img src="{% static 'image/dd12.png' %}" alt="Employee Management Homepage">
+</div>
+{% endblock %}
