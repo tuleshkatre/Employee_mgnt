@@ -1,0 +1,376 @@
+{% extends 'base.html' %}
+
+{% block extra_styles %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f2f2f2;
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .container {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 800px;
+        margin-top: 20px;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .employee {
+        border-bottom: 1px solid #ccc;
+        padding: 10px 0;
+    }
+
+    .employee:last-child {
+        border-bottom: none;
+    }
+
+    .employee img {
+        max-width: 100px;
+        height: auto;
+        margin-top: 10px;
+        border-radius: 5px;
+    }
+
+    .navbar {
+        background-color: #333;
+        color: white;
+        width: 100%;
+        padding: 15px 20px;
+        box-sizing: border-box;
+        margin-bottom: 20px;
+    }
+
+    .nav-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .nav-button {
+        color: white;
+        text-decoration: none;
+        padding: 5px 10px;
+        background-color: #555;
+        border-radius: 3px;
+        transition: background-color 0.3s ease;
+    }
+
+    .nav-button:hover {
+        background-color: #777;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    table th, table td {
+        padding: 10px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    table th {
+        background-color: #333;
+        color: white;
+    }
+
+    .message {
+        text-align: center;
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 5px;
+        color: white;
+    }
+
+    .message.info {
+        background-color: #17a2b8;
+    }
+
+    .message.success {
+        background-color: #28a745;
+    }
+
+    .message.warning {
+        background-color: #ffc107;
+        color: #212529;
+    }
+
+    .message.error {
+        background-color: #dc3545;
+    }
+
+    .employee-details {
+        display: block;
+    }
+
+    .task-list {
+        display: none;
+    }
+
+    .form-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+
+    form input, form select, form textarea {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+
+    button {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        background-color: #555;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+        background-color: #777;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="navbar">
+    <h1>Employee</h1>
+    <div class="nav-buttons">
+        <a href="{% url 'read' %}" class="nav-button">Profile</a>
+        <a href="#" class="nav-button" id="load-tasks-btn">Task</a>
+        <a href="#" class="nav-button" id="attendance-btn">Mark Attendance</a>
+        <a href="#" class="nav-button" id="attendance_list-btn">Attendance List</a>
+        <a href="#" class="nav-button" id="check_in-btn">Check in record</a>
+        <a href="#" class="nav-button" id="create_task-btn">Create New Task</a>
+        <a href="{% url 'user_logout' %}" class="nav-button">Logout</a>
+    </div>
+</div>
+
+<!-- Message Handling -->
+{% for message in messages %}
+    <div class="message {{ message.tags }}">
+        {% if 'safe' in message.tags %}
+            {{ message|safe }}
+        {% else %}
+            {{ message }}
+        {% endif %}
+    </div>
+{% endfor %}
+
+<!-- Admin Section -->
+<div class="container employee-details">
+    <h2>Admin Detail</h2>
+    {% for emp in data %}
+    <div class="employee">
+        <p><strong>First Name:</strong> {{ emp.first_name }}</p>
+        <p><strong>Last Name:</strong> {{ emp.last_name }}</p>
+        <p><strong>Username:</strong> {{ emp.username }}</p>
+        <p><strong>Email:</strong> {{ emp.email }}</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Task List -->
+<div class="task-list" id="task-list-container">
+    <h2>Task List</h2>
+    {% if user.is_authenticated %}
+    <table>
+        <thead>
+            <tr>
+                <th>Employee Name</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Created at</th>
+                <th>Deadline</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td>{{ task.employee.username }}</td>
+                <td>{{ task.title }}</td>
+                <td>{{ task.description }}</td>
+                <td>{{ task.status }}</td>
+                <td>{{ task.created_at }}</td>
+                <td>{{ task.deadline }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">No tasks available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="message">Please <a href="{% url 'login' %}">login</a></p>
+    {% endif %}
+</div>
+
+<!-- Attendance Form -->
+<div class="form-container" id="attendance-container">
+    <h2>Attendance</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Submit</button>
+    </form>
+</div>
+
+<!-- Attendance List -->
+<div class="table-container" id="attendance_list-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Employee</th>
+                <th>Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in att_list %}
+            <tr>
+                <td>{{ record.employee.username }}</td>
+                <td>{{ record.date }}</td>
+                <td>{{ record.status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Check In/Out Record -->
+<div class="task-list" id="check_in-container">
+    <h2>Check-In/Out Records</h2>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Check In</th>
+            <th>Check Out</th>
+            <th>Working Hours</th>
+        </tr>
+        {% for record in records %}
+        <tr>
+            <td>{{ record.employee.username }}</td>
+            <td>{{ record.date }}</td>
+            <td>{{ record.check_in }}</td>
+            <td>{{ record.check_out }}</td>
+            <td>
+                {% if record.working_hours %}
+                    {{ record.working_hours }}
+                {% else %}
+                    Not Available
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<!-- Create Task Section -->
+<div class="form-container" id="create_task-container">
+    <h1>Create a New Task</h1>
+    {% if user.is_authenticated %}
+        {% if user.is_superuser %}
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ task_form.as_p }}
+                <button type="submit">Create Task</button>
+            </form>
+        {% else %}
+            <p>You are not authorized to create tasks.</p>
+        {% endif %}
+    {% else %}
+        <p>Please <a href="{% url 'login' %}">login</a></p>
+    {% endif %}
+</div>
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelector('.employee-details').style.display = 'block';
+        document.getElementById('task-list-container').style.display = 'none';
+        document.getElementById('attendance-container').style.display = 'none';
+        document.getElementById('attendance_list-container').style.display = 'none';
+        document.getElementById('check_in-container').style.display = 'none';
+        document.getElementById('create_task-container').style.display = 'none';
+    });
+
+    document.getElementById("load-tasks-btn").addEventListener("click", function(event) {
+        event.preventDefault();
+        document.querySelector('.employee-details').style.display = 'none';
+        document.getElementById('task-list-container').style.display = 'block';
+        document.getElementById('attendance-container').style.display = 'none';
+        document.getElementById('attendance_list-container').style.display = 'none';
+        document.getElementById('check_in-container').style.display = 'none';
+        document.getElementById('create_task-container').style.display = 'none';
+    });
+
+    document.getElementById("attendance-btn").addEventListener("click", function(event) {
+        event.preventDefault();
+        document.querySelector('.employee-details').style.display = 'none';
+        document.getElementById('task-list-container').style.display = 'none';
+        document.getElementById('attendance-container').style.display = 'block';
+        document.getElementById('attendance_list-container').style.display = 'none';
+        document.getElementById('check_in-container').style.display = 'none';
+        document.getElementById('create_task-container').style.display = 'none';
+    });
+
+    document.getElementById("attendance_list-btn").addEventListener("click", function(event) {
+        event.preventDefault();
+        document.querySelector('.employee-details').style.display = 'none';
+        document.getElementById('task-list-container').style.display = 'none';
+        document.getElementById('attendance-container').style.display = 'none';
+        document.getElementById('attendance_list-container').style.display = 'block';
+        document.getElementById('check_in-container').style.display = 'none';
+        document.getElementById('create_task-container').style.display = 'none';
+    });
+
+    document.getElementById("check_in-btn").addEventListener("click", function(event) {
+        event.preventDefault();
+        document.querySelector('.employee-details').style.display = 'none';
+        document.getElementById('task-list-container').style.display = 'none';
+        document.getElementById('attendance-container').style.display = 'none';
+        document.getElementById('attendance_list-container').style.display = 'none';
+        document.getElementById('check_in-container').style.display = 'block';
+        document.getElementById('create_task-container').style.display = 'none';
+    });
+
+    document.getElementById("create_task-btn").addEventListener("click", function(event) {
+        event.preventDefault();
+        document.querySelector('.employee-details').style.display = 'none';
+        document.getElementById('task-list-container').style.display = 'none';
+        document.getElementById('attendance-container').style.display = 'none';
+        document.getElementById('attendance_list-container').style.display = 'none';
+        document.getElementById('check_in-container').style.display = 'none';
+        document.getElementById('create_task-container').style.display = 'block';
+    });
+</script>
+{% endblock %}
+{% endblock %}
+
+
