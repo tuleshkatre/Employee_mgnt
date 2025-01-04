@@ -27,15 +27,9 @@ urlpatterns = [
     path('create/', views.emp_create, name='create'),
     path('login/', views.user_login, name='login'),
     path('read/', views.read, name='read'),
-    path('create_task/', views.create_task, name='create_task'),
-    path('task_list/', views.task_list, name='task_list'),
     path('user_logout/', views.user_logout, name='user_logout'),
-    path('attendance/', views.attendance, name='attendance'),
-    path('attendance_list/', views.attendance_list, name='attendance_list'),
-    
     path('check_in/', views.check_in, name='check_in'),
     path('check_out/', views.check_out, name='check_out'),
-    path('check_read/', views.check_read, name='check_read'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

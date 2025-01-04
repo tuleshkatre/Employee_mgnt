@@ -10,7 +10,8 @@ class Employee(User):
     image = models.ImageField(default='dd.png', blank=True, null=True)
 
 class UserOTP(models.Model):
-    employee = models.OneToOneField(Employee, on_delete=models.CASCADE, related_name='otp_info')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name= "otp_info",blank=True, null=True)
+    employee = models.OneToOneField(Employee, on_delete=models.CASCADE, related_name="otp_employee",blank=True, null=True)
     otp = models.CharField(max_length=6, blank=True, null=True)
     otp_created_at = models.DateTimeField(blank=True, null=True)
 

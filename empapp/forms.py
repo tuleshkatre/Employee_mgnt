@@ -13,7 +13,7 @@ class TaskForm(forms.ModelForm):
         model = Task
         fields = ['employee', 'title', 'description', 'deadline', 'status']
 
-class AttendenceForm(forms.ModelForm):
+class AttendanceForm(forms.ModelForm):
     class Meta:
         model = Attendance
         fields = ['employee', 'date', 'status']

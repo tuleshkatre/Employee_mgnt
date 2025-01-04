@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block extra_styles %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f2f2f2;
+        flex-direction: column;
+        padding: 20px;
+    }
+
+
+    .navbar {
+        background-color: #333;
+        color: white;
+        width: 100%;
+        padding: 15px 20px;
+        box-sizing: border-box;
+        margin-bottom: 20px;
+    }
+
+    .nav-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .nav-button {
+        color: white;
+        text-decoration: none;
+        padding: 5px 10px;
+        background-color: #555;
+        border-radius: 3px;
+        transition: background-color 0.3s ease;
+    }
+
+    .nav-button:hover {
+        background-color: #777;
+    }
+
+    .container {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 800px;
+        margin-top: 20px;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .employee {
+        border-bottom: 1px solid #ccc;
+        padding: 10px 0;
+    }
+
+    .employee:last-child {
+        border-bottom: none;
+    }
+
+    .employee img {
+        max-width: 100px;
+        height: auto;
+        margin-top: 10px;
+        border-radius: 5px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    table th, table td {
+        padding: 10px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    table th {
+        background-color: #333;
+        color: white;
+    }
+
+    .message {
+        text-align: center;
+    }
+
+    .employee-details {
+        display: block;
+    }
+
+    .task-list {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="navbar">
+    <h1>Employee</h1>
+    <div class="nav-buttons">
+        <a href="{% url 'read' %}" class="nav-button">Profile</a>
+        <a href="#" class="nav-button" id="load-tasks-btn">Task</a>
+        <a href="{% url 'check_in' %}" class="nav-button">Checkin</a>
+        <a href="{% url 'check_out' %}" class="nav-button">Checkout</a>
+        <a href="{% url 'user_logout' %}" class="nav-button">Logout</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="employee-details">
+    <h2>Employee Detail</h2>
+        {% for emp in data %}
+        <div class="employee">
+            <p><strong>First Name:</strong> {{ emp.first_name }}</p>
+            <p><strong>Last Name:</strong> {{ emp.last_name }}</p>
+            <p><strong>Username:</strong> {{ emp.username }}</p>
+            <p><strong>Email:</strong> {{ emp.email }}</p>
+            <p><strong>Profile Image:</strong></p>
+            <img src="{{ emp.image.url }}" alt="{{ emp.first_name }} {{ emp.last_name }}">
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Task List Container (Initially hidden) -->
+    <div class="task-list" id="task-list-container" style="display: none;">
+        <h2>Task List</h2>
+
+        {% if user.is_authenticated %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee Name</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Created at</th>
+                    <th>Deadline</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr>
+                    <td>{{ task.employee.username }}</td>
+                    <td>{{ task.title }}</td>
+                    <td>{{ task.description }}</td>
+                    <td>{{ task.status }}</td>
+                    <td>{{ task.created_at }}</td>
+                    <td>{{ task.deadline }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">No tasks available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="message">Please <a href="{% url 'login' %}">login</a></p>
+        {% endif %}
+    </div>
+</div>
+
+{% block extra_scripts %}
+<script>
+document.getElementById("load-tasks-btn").addEventListener("click", function(event) {
+    event.preventDefault();
+
+    const employeeDetails = document.querySelector('.employee-details');
+    const taskListContainer = document.getElementById('task-list-container');
+
+    if (employeeDetails.style.display === 'none') {
+        employeeDetails.style.display = 'block';  
+        taskListContainer.style.display = 'none';
+    } else {
+        employeeDetails.style.display = 'none';
+        taskListContainer.style.display = 'block';
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}
