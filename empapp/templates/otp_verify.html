@@ -29,47 +29,63 @@
         background-color: #777;
     }
 
-    .otp-container {
-        max-width: 400px;
-        margin: 0 auto;
-        padding: 20px;
-        border: 1px solid #ccc;
+    .login-container {
+        width: 400px; 
+        margin: 0 auto; 
+        padding: 30px; 
+        border: 1px solid #ccc; 
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        background-color: #fff; 
         border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
-
-    .otp-container form {
+    
+    .login-container h1 {
+        text-align: center; 
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+    
+    .login-container form {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        align-items: center;
     }
-
-    .otp-container input,
-    .otp-container button {
+    
+    .login-container label {
+        align-self: flex-start;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    
+    .login-container input {
+        width: 380px;
         padding: 10px;
+        margin-bottom: 15px;
         border: 1px solid #ccc;
         border-radius: 5px;
     }
-
-    .otp-container button {
+    
+    .login-container button {
+        width: 100%;
+        padding: 10px;
+        border: none;
         background-color: #333;
         color: white;
+        border-radius: 5px;
         cursor: pointer;
         transition: background-color 0.3s ease;
     }
-
-    .otp-container button:hover {
+    
+    .login-container button:hover {
         background-color: #555;
     }
-
+    
     .error-message {
         color: red;
         text-align: center;
+        margin-top: 10px;
     }
 
-    .message {
-        text-align: center;
-    }
 </style>
 {% endblock %}
 
@@ -80,7 +96,7 @@
     </div>
 </div>
 
-<div class="otp-container">
+<div class="login-container">
     <form method="post">
         {% csrf_token %}
         <input type="hidden" name="email" value="{{ email }}">

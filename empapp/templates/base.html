@@ -5,67 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee management</title>
    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    html, body {
+        height: 100%; /* Ensure the page takes the full height of the viewport */
+        margin: 0;
+        display: flex;
+        flex-direction: column; /* Stack elements vertically */
+    }
 
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f7f7f7;
-            color: #333;
-        }
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f7f7f7;
+        color: #333;
+    }
 
-        .navbar {
-            background-color: #131921;
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .navbar h1 {
-            font-size: 32px;
-        }
-        .navbar .nav-buttons {
-            display: flex;
-            gap: 15px;
-        }
-        .nav-button {
-            padding: 10px 20px;
-            font-size: 14px;
-            color: white;
-            background-color: #ff9900;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-        .nav-button:hover {
-            background-color: #ff8c00;
-        }
+    .navbar {
+        background-color: #131921;
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-        .footer {
-            background-color: #131921;
-            color: white;
-            text-align: center;
-            width: 100%;
-            padding: 15px 20px;
-            box-sizing: border-box;
-            margin-bottom: 20px;
-            position :absolute;
-            bottom:0;
-        }
-        .footer p {
-            font-size: 14px;
-        }
-        .footer a {
-            color: #ff9900;
-            text-decoration: none;
-        }
-        .footer a:hover {
-            text-decoration: underline;
-        }
+    .navbar h1 {
+        font-size: 32px;
+    }
+
+    .navbar .nav-buttons {
+        display: flex;
+        gap: 15px;
+    }
+
+    .nav-button {
+        padding: 10px 20px;
+        font-size: 14px;
+        color: white;
+        background-color: #ff9900;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+    .nav-button:hover {
+        background-color: #ff8c00;
+    }
+
+    .footer {
+        background-color: #131921;
+        color: white;
+        text-align: center;
+        width: 100%;
+        padding: 15px 20px;
+        box-sizing: border-box;
+        margin-top: auto; /* Push the footer to the bottom */
+    }
+
+    .footer p {
+        font-size: 14px;
+    }
+
+    .footer a {
+        color: #ff9900;
+        text-decoration: none;
+    }
+
+    .footer a:hover {
+        text-decoration: underline;
+    }
 
     </style>
     {% block extra_styles %} 

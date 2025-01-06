@@ -30,50 +30,84 @@
     }
 
     .login-container {
-        max-width: 400px;
-        margin: 0 auto;
-        padding: 20px;
-        border: 1px solid #ccc;
+        width: 400px; 
+        margin: 0 auto; 
+        padding: 30px; 
+        border: 1px solid #ccc; 
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        background-color: #fff; 
         border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
-
+    
     .login-container h1 {
-        text-align: center;
+        text-align: center; 
+        font-size: 24px;
         margin-bottom: 20px;
     }
-
-    .login-container label {
-        display: block;
-        margin-bottom: 5px;
+    
+    .login-container form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
-
+    
+    .login-container label {
+        align-self: flex-start;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    
     .login-container input {
         width: 100%;
         padding: 10px;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
         border: 1px solid #ccc;
         border-radius: 5px;
     }
-
+    
     .login-container button {
         width: 100%;
         padding: 10px;
+        border: none;
         background-color: #333;
         color: white;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    
+    .login-container button:hover {
+        background-color: #555;
+    }
+    
+    .error-message {
+        color: red;
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    .choice-buttons {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 20px;
+    }
+
+    .choice-buttons button {
+        padding: 10px 20px;
         border: none;
+        background-color: #333;
+        color: white;
         border-radius: 5px;
         cursor: pointer;
         transition: background-color 0.3s ease;
     }
 
-    .login-container button:hover {
+    .choice-buttons button:hover {
         background-color: #555;
     }
 
-    .error-message {
-        color: red;
-        text-align: center;
+    .hidden {
+        display: none !important;
     }
 </style>
 {% endblock %}
@@ -89,16 +123,48 @@
 
 <div class="login-container">
     <h1>Login</h1>
-    <form method="post">
+    <div class="choice-buttons">
+        <button type="button" onclick="showPasswordLogin()" class="nav-button">Login with Password</button>
+        <button type="button" onclick="showOtpLogin()" id="load-tasks-btn">Login with OTP</button>
+    </div>
+
+    <!-- Password Login Form -->
+    <form method="post" id="password-login">
+        {% csrf_token %}
+        <label>Email</label>
+        <input type="email" name="email" required>
+        <label>Password</label>
+        <input type="password" name="password" required>
+        <button type="submit">Login</button>
+    </form>
+
+    <!-- OTP Login Form -->
+    <form method="post" id="otp-login">
         {% csrf_token %}
         <label>Email</label>
         <input type="email" name="email" required>
         <button type="submit">Send OTP</button>
     </form>
+
     <p class="error-message">{{ error }}</p>
 </div>
 
+{% block extra_scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById('password-login').style.display = 'block';
+        document.getElementById('otp-login').style.display = 'none';
+    });
 
+    function showPasswordLogin() {
+        document.getElementById('password-login').style.display = 'block';
+        document.getElementById('otp-login').style.display = 'none';
+    }
 
-
+    function showOtpLogin() {
+        document.getElementById('otp-login').style.display = 'block';
+        document.getElementById('password-login').style.display = 'none';
+    }
+</script>
+{% endblock %}
 {% endblock %}

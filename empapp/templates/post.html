@@ -1,7 +1,5 @@
 {% extends 'base.html' %}
 
-{% load static %}
-
 {% block extra_styles %}
 <style>
     .navbar {
@@ -31,15 +29,6 @@
         background-color: #777;
     }
 
-    .homepage-image img {
-    width: 100%; 
-    max-width: 1200px; 
-    height: 500px; 
-    display: block;
-    margin: 0 auto;x
-    border-radius: 10px; 
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-    }
 </style>
 {% endblock %}
 
@@ -47,11 +36,13 @@
 <div class="navbar">
     <h1>Employee</h1>
     <div class="nav-buttons">
-        <a href="{% url 'login' %}" class="nav-button">Login</a>
-        <a href="{% url 'create' %}" class="nav-button">Signup</a>
     </div>
 </div>
-<div class="homepage-image">
-    <img src="{% static 'image/dd12.png' %}" alt="Employee Management Homepage">
-</div>
+
+  <form method="post">
+        {% csrf_token %}
+        {{post.as_p}}
+        <button type="submit">Post</button>
+    </form>
+
 {% endblock %}

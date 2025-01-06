@@ -30,6 +30,7 @@ urlpatterns = [
     path('user_logout/', views.user_logout, name='user_logout'),
     path('check_in/', views.check_in, name='check_in'),
     path('check_out/', views.check_out, name='check_out'),
+    path('post/', views.post_create, name='post'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
