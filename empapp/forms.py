@@ -1,5 +1,5 @@
 from django import forms
-from .models import Employee, Task , Attendance , CheckInOut
+from .models import Employee, Task , Attendance , Post
 
 class EmpCreate(forms.ModelForm):
     password = forms.CharField()
@@ -18,4 +18,8 @@ class AttendanceForm(forms.ModelForm):
         model = Attendance
         fields = ['employee', 'date', 'status']
 
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['title', 'description']
 

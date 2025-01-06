@@ -2,6 +2,7 @@
 
 {% block extra_styles %}
 <style>
+
     body {
         font-family: Arial, sans-serif;
         display: flex;
@@ -9,9 +10,7 @@
         align-items: center;
         background-color: #f2f2f2;
         flex-direction: column;
-        padding: 20px;
     }
-
 
     .navbar {
         background-color: #333;
@@ -46,8 +45,10 @@
         border-radius: 5px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         width: 100%;
-        max-width: 800px;
-        margin-top: 20px;
+        max-width: 1200px;
+        margin-top: 20px , auto;
+        min-height: auto; 
+        position: relative;
     }
 
     h1 {
@@ -98,6 +99,7 @@
     .task-list {
         display: none;
     }
+
 </style>
 {% endblock %}
 
@@ -169,6 +171,7 @@
 
 {% block extra_scripts %}
 <script>
+
 document.getElementById("load-tasks-btn").addEventListener("click", function(event) {
     event.preventDefault();
 
@@ -183,6 +186,7 @@ document.getElementById("load-tasks-btn").addEventListener("click", function(eve
         taskListContainer.style.display = 'block';
     }
 });
+
 </script>
 {% endblock %}
 {% endblock %}

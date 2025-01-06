@@ -28,47 +28,22 @@
     .nav-button:hover {
         background-color: #777;
     }
-
     .create-container {
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 50%;
+        margin: 0 auto; /* Center the container */
+        padding: 20px; /* Add some padding for spacing */
+        border: 1px solid #ccc; /* Add a border for better visibility */
+        border-radius: 10px; /* Round the corners */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for depth */
+        background-color: #f9f9f9; /* Set a background color */
     }
-
-    .create-container h1 {
-        text-align: center;
-        margin-bottom: 20px;
+    table {
+        width: 100%;
+        border-collapse: collapse;
     }
-
-    .create-container form {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .create-container label {
-        margin-bottom: 5px;
-    }
-
-    .create-container input,
-    .create-container button {
+    th, td {
         padding: 10px;
-        margin-bottom: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
-
-    .create-container button {
-        background-color: #333;
-        color: white;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-
-    .create-container button:hover {
-        background-color: #555;
+        border: 1px solid #ddd;
     }
 </style>
 {% endblock %}
@@ -86,8 +61,47 @@
     <h1>Signup</h1>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Submit</button>
+        <table>
+            <tr>
+                <td>{{ form.username.label_tag }}</td>
+                <td>{{ form.username }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.phone.label_tag }}</td>
+                <td>{{ form.phone }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.email.label_tag }}</td>
+                <td>{{ form.email }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.first_name.label_tag }}</td>
+                <td>{{ form.first_name }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.last_name.label_tag }}</td>
+                <td>{{ form.last_name }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.image.label_tag }}</td>
+                <td>{{ form.image }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.password.label_tag }}</td>
+                <td>{{ form.password }}</td>
+            </tr>
+            <tr>
+                <td colspan="2"><button type="submit">Submit</button></td>
+            </tr>
+        </table>
     </form>
 </div>
+
+
 {% endblock %}
+
+
+
+
+
+

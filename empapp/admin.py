@@ -1,13 +1,13 @@
 from django.contrib import admin
-from .models import Employee, Task , Attendance , CheckInOut , UserOTP
-# Register your models here.
+from .models import Employee, Task , Attendance , CheckInOut , UserOTP , Post
+
 @admin.register(Employee)
 class EmloyeeAdmin(admin.ModelAdmin):
     list_display = ['first_name', 'last_name','phone', 'email']
 
 @admin.register(UserOTP)
 class UserotpAdmin(admin.ModelAdmin):
-    list_display = ['employee', 'otp', 'otp_created_at']
+    list_display = ['user', 'otp', 'otp_created_at']
     
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
@@ -21,6 +21,7 @@ class AttendenceAdmin(admin.ModelAdmin):
 class CheckInOutAdmin(admin.ModelAdmin):
     list_display = ['employee', 'date', 'check_in' , 'check_out']
 
-
-
+@admin.register(Post)
+class PostAdmin(admin.ModelAdmin):
+    list_display = ['employee', 'title', 'description' , 'created_at']
 
