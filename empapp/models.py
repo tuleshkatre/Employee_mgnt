@@ -54,25 +54,20 @@ class CheckInOut(models.Model):
             working_hours = check_out_time - check_in_time
             return working_hours
         return None
-    
+
 class Post(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     likes = models.IntegerField(default=0)
     dislikes = models.IntegerField(default=0)
+    liked_by = models.ManyToManyField(User, related_name='liked_posts', blank=True)
+    disliked_by = models.ManyToManyField(User, related_name='disliked_posts', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
-    def like_post(self):
-        self.likes += 1
-        self.save()
-
-    def dislike_post(self):
-        self.dislikes += 1
-        self.save()
 
     def _str_(self):
         return self.title
+
 
 
 

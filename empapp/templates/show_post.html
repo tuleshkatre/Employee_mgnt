@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+
+{% block extra_styles %}
+<style>
+  .navbar {
+      background-color: #333;
+      color: white;
+      width: 100%;
+      padding: 15px 20px;
+      box-sizing: border-box;
+      margin-bottom: 20px;
+  }
+
+  .nav-buttons {
+      display: flex;
+      gap: 10px;
+  }
+
+  .nav-button {
+      color: white;
+      text-decoration: none;
+      padding: 5px 10px;
+      background-color: #555;
+      border-radius: 3px;
+      transition: background-color 0.3s ease;
+  }
+
+  .nav-button:hover {
+      background-color: #777;
+  }
+
+  .posts-container {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+  }
+
+  .all-posts, .trending-posts {
+      width: 48%;
+      margin-left:10px;
+
+  }
+
+  .post, .trending {
+      border: 1px solid #ddd;
+      margin: 10px 0;
+      padding: 15px;
+      border-radius: 8px;
+      background-color: #f5f5f5;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .post h2, .trending h2 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: #333;
+  }
+
+  .post p, .trending p {
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+      color: #555;
+  }
+
+  .like-dislike-btns {
+      display: flex;
+      gap: 10px;
+  }
+
+  .like-btn, .dislike-btn {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+  }
+
+  .like-btn:hover {
+      background-color: #0056b3;
+  }
+
+  .dislike-btn {
+      background-color: #dc3545;
+  }
+
+  .dislike-btn:hover {
+      background-color: #c82333;
+  }
+
+  .pagination {
+      text-align: center;
+      margin-top: 20px;
+      margin-bottom: 10px;
+  }
+
+  .pagination .step-links a {
+      margin: 0 5px;
+      text-decoration: none;
+      padding: 8px 12px;
+      background-color: #007bff;
+      color: white;
+      border-radius: 5px;
+      font-size: 0.85rem;
+  }
+
+  .pagination .step-links a:hover {
+      background-color: #0056b3;
+  }
+
+  .pagination .current {
+      font-weight: bold;
+      margin: 0 5px;
+      padding: 8px 12px;
+      background-color: #6c757d;
+      color: white;
+      border-radius: 5px;
+      font-size: 0.85rem;
+  }
+
+  .all_poh {
+      display: block;
+      margin-left:10px;
+
+  }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="navbar">
+    <h1>Employee</h1>
+    <div class="nav-buttons">
+        <a href="{% url 'read' %}" class="nav-button">Profile</a>
+    </div>
+</div>
+
+<div class="posts-container">
+    <div class="all-posts">
+        <h3 class = "all_poh">All Posts</h3>
+
+        {% for post in page_obj %}
+        <div class="post">
+            <p><strong>Title :- </strong>{{ post.title }}</p>
+            {% comment %} <p><strong>Posted By :- </strong> {{ post.employee.first_name }}</p> {% endcomment %}
+            <p><strong>Description :- </strong> {{ post.description }}</p>
+            <p><strong>Created At :- </strong> {{ post.created_at }}</p>
+            <p>Likes: {{ post.likes }} | Dislikes: {{ post.dislikes }}</p>
+
+            <div class="like-dislike-btns">
+                <form action="{% url 'like' post.id %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="page" value="{{ page_obj.number }}">
+
+                    <button type="submit" class="like-btn">
+                        {% if user in post.liked_by.all %}
+                            Unlike
+                        {% else %}
+                            Like
+                        {% endif %}
+                    </button>
+                </form>
+
+                <form action="{% url 'dis_like' post.id %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="page" value="{{ page_obj.number }}">
+
+                    <button type="submit" class="dislike-btn">
+                        {% if user in post.disliked_by.all %}
+                            Remove Dislike
+                        {% else %}
+                            Dislike
+                        {% endif %}
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Pagination Controls -->
+        <div class="pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; First</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">Next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+
+    <div class="trending-posts">
+        <h3>Trending Posts</h3>
+
+        {% for trending in tr_posts %}
+        <div class="trending">
+            <p><strong>Title :- </strong>{{ trending.title }}</p>
+            {% comment %} <p><strong>Posted By :- </strong> {{ post.employee.first_name }}</p> {% endcomment %}
+            <p><strong>Description :- </strong> {{ trending.description }}</p>
+            <p><strong>Created At :- </strong> {{ trending.created_at }}</p>
+            <p>Total Likes: {{ trending.total_likes }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+
+
