@@ -1,13 +1,14 @@
-from django.shortcuts import render, redirect
-from .forms import EmpCreate, TaskForm , AttendanceForm , PostForm
-from .models import Employee, Task , Attendance , CheckInOut, UserOTP
-from django.contrib.auth import authenticate,login as auth_login
-from django.contrib.auth import logout
+from django.shortcuts import render , redirect , get_object_or_404
+from .forms import EmpCreate , TaskForm , AttendanceForm , PostForm
+from .models import Employee , Task , Attendance , CheckInOut , UserOTP , Post
+from django.contrib.auth import authenticate , login as auth_login , logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.utils.timezone import now
 from django.core.mail import send_mail
 from django.contrib import messages
+from django.db.models import Count
+from django.core.paginator import Paginator
 import random
 
 def home(request):
@@ -89,8 +90,9 @@ def user_login(request):
 
     return render(request, 'login.html')
 
-@login_required
 def read(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
     if request.user.is_superuser:
         data = User.objects.filter(id=request.user.id)
         att_list = Attendance.objects.all()
@@ -141,8 +143,19 @@ def read(request):
     else:
         data = Employee.objects.filter(id=request.user.id)
         tasks = Task.objects.filter(employee=request.user)
-        return render(request, 'Employee_dashboard.html', {'data': data, 'tasks': tasks})
-   
+        all_posts = Post.objects.all()
+
+        if request.method == 'POST':
+                post = PostForm(request.POST)
+                if post.is_valid():
+                    posts = post.save(commit=False)
+                    posts.employee = Employee.objects.get(id = request.user.id)
+                    posts.save()
+                    return redirect('read')
+        else:
+            post = PostForm()
+        return render(request, 'Employee_dashboard.html', {'data': data, 'tasks': tasks , 'post':post , 'all_posts':all_posts})
+        
 @login_required
 def user_logout(request):
     logout(request)
@@ -174,19 +187,84 @@ def check_out(request):
     except CheckInOut.DoesNotExist:
         return render(request, 'error.html', {'message': 'You must check in before checking out.'})
 
+@login_required
+def like(request, id):
+    if request.user.is_superuser:
+        return redirect('read')
+    
+    post = get_object_or_404(Post, id=id)
+    user = request.user
 
-
-def post_create(request):
-    if request.method == 'POST':
-        post = PostForm(request.POST)
-        if post.is_valid():
-            posts = post.save(commit=False)
-            posts.employee = Employee.objects.get(id = request.user.id)
-            posts.save()
-            return redirect('read')
+    if user in post.liked_by.all():
+        post.liked_by.remove(user)
+        post.likes -= 1
     else:
-        post = PostForm()
-    return render(request , 'post.html', {'post':post})
+        post.liked_by.add(user)
+        post.likes += 1
+        if user in post.disliked_by.all():
+            post.disliked_by.remove(user)
+            post.dislikes -= 1
+
+    post.save()
+    page = request.POST.get('page', 1)
+    return redirect(f'/show_post/?page={page}')
+
+@login_required
+def dis_like(request, id):
+    if request.user.is_superuser:
+        return redirect('read')
+    
+    post = get_object_or_404(Post, id=id)
+    user = request.user
+
+    if user in post.disliked_by.all():
+        post.disliked_by.remove(user)
+        post.dislikes -= 1
+    else:
+        post.disliked_by.add(user)
+        post.dislikes += 1
+        if user in post.liked_by.all():
+            post.liked_by.remove(user)
+            post.likes -= 1
+
+    post.save()
+    page = request.POST.get('page', 1)
+    return redirect(f'/show_post/?page={page}')
+
+@login_required
+def show_post(request):
+    if request.user.is_superuser:
+        return redirect('read')
+
+    all_posts = Post.objects.all()
+    trending_posts = Post.objects.annotate(total_likes=Count('liked_by')).order_by('-total_likes')[:2]
+
+    paginator = Paginator(all_posts, 2)  
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'show_post.html', {'page_obj': page_obj, 'tr_posts': trending_posts})
+
+
+
+
+
+# from django.db.models import Count, F
+
+# posts = Post.objects.annotate(
+#     like_count=Count('liked_by'),
+#     dislike_count=Count('disliked_by'),
+#     total_likes_dislikes=F('like_count') + F('dislike_count')
+# ).order_by('-total_likes_dislikes')[:2]
+
+# from django.db.models import Count
+
+# posts = Post.objects.annotate(
+#     like_count=Count('liked_by'),
+#     dislike_count=Count('disliked_by')
+# ).order_by('-like_count', '-dislike_count')[:2] 
+
+
 
 
 

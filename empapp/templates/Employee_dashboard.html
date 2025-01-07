@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 
 {% block extra_styles %}
-<style>
 
+<style>
     body {
         font-family: Arial, sans-serif;
         display: flex;
@@ -46,8 +46,8 @@
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         width: 100%;
         max-width: 1200px;
-        margin-top: 20px , auto;
-        min-height: auto; 
+        margin-top: 20px auto;
+        min-height: auto;
         position: relative;
     }
 
@@ -100,24 +100,124 @@
         display: none;
     }
 
+    #post_container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-width: 600px;
+        margin: 20px auto;
+    }
+
+    #post_container form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    #post_container button {
+        align-self: flex-end;
+        padding: 10px 20px;
+        background-color: #333;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    #post_container button:hover {
+        background-color: #555;
+    }
+
+    @media (max-width: 768px) {
+        #post_container {
+            width: 90%;
+        }
+    }
+
+    .post {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin: 20px auto;
+        width: 80%;
+        max-width: 800px;
+        transition: box-shadow 0.3s ease;
+    }
+
+    .post:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .post h2 {
+        font-size: 20px;
+        margin-top: 0;
+    }
+
+    .post p {
+        font-size: 16px;
+        color: #555;
+    }
+
+    .like-dislike-btns form {
+        display: inline-block;
+        margin-right: 10px;
+    }
+
+    button {
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    button:hover {
+        transform: scale(1.05);
+    }
+
+    .like-btn {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .like-btn:hover {
+        background-color: #45a049;
+    }
+
+    .dislike-btn {
+        background-color: #f44336;
+        color: white;
+    }
+
+    .dislike-btn:hover {
+        background-color: #e53935;
+    }
 </style>
+
 {% endblock %}
 
 {% block content %}
+
 <div class="navbar">
     <h1>Employee</h1>
     <div class="nav-buttons">
         <a href="{% url 'read' %}" class="nav-button">Profile</a>
         <a href="#" class="nav-button" id="load-tasks-btn">Task</a>
+        <a href="#" class="nav-button" id="post-btn">Create Post</a>
         <a href="{% url 'check_in' %}" class="nav-button">Checkin</a>
         <a href="{% url 'check_out' %}" class="nav-button">Checkout</a>
+        {% comment %} <a href="#" class="nav-button" id="all-posts-btn">All Posts</a> {% endcomment %}
+        <a href="{% url 'show_post' %}" class="nav-button">All Posts</a>
         <a href="{% url 'user_logout' %}" class="nav-button">Logout</a>
     </div>
 </div>
 
 <div class="container">
     <div class="employee-details">
-    <h2>Employee Detail</h2>
+        <h2>Employee Detail</h2>
         {% for emp in data %}
         <div class="employee">
             <p><strong>First Name:</strong> {{ emp.first_name }}</p>
@@ -167,26 +267,99 @@
         <p class="message">Please <a href="{% url 'login' %}">login</a></p>
         {% endif %}
     </div>
+
+    <!-- Post create Container -->
+    <form method="post" enctype="multipart/form-data" id="post_container" style="display: none;">
+        {% csrf_token %}
+        <table>
+            <tr>
+                <td>{{ post.title.label_tag }}</td>
+                <td>{{ post.title }}</td>
+            </tr>
+            <tr>
+                <td>{{ post.description.label_tag }}</td>
+                <td>{{ post.description }}</td>
+            </tr>
+            <tr>
+                <td colspan="2"><button type="submit">Submit</button></td>
+            </tr>
+        </table>
+    </form>
+
+    <!-- Post List Container -->
+    <div id="all_posts_container" style="display: none;">
+        {% for post in all_posts %}
+        <div class="post">
+            <p><strong>Posted By :-</strong> {{ post.employee.first_name }}</p>
+            <h2>{{ post.title }}</h2>
+            <p>{{ post.description }}</p>
+            <p>Likes: {{ post.likes }} | Dislikes: {{ post.dislikes }}</p>
+
+            <div class="like-dislike-btns">
+                <form action="{% url 'like' post.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="like-btn">
+                        {% if user in post.liked_by.all %}
+                            Unlike
+                        {% else %}
+                            Like
+                        {% endif %}
+                    </button>
+                </form>
+
+                <form action="{% url 'dis_like' post.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="dislike-btn">
+                        {% if user in post.disliked_by.all %}
+                            Remove Dislike
+                        {% else %}
+                            Dislike
+                        {% endif %}
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 
 {% block extra_scripts %}
+
 <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelector('.employee-details').style.display = 'block';
+        document.getElementById('task-list-container').style.display = 'none';
+        document.getElementById('post_container').style.display = 'none';
+        document.getElementById('all_posts_container').style.display = 'none';
+    });
 
-document.getElementById("load-tasks-btn").addEventListener("click", function(event) {
-    event.preventDefault();
+    document.getElementById("load-tasks-btn").addEventListener("click", function(event) {
+        event.preventDefault();
+        document.querySelector('.employee-details').style.display = 'none';
+        document.getElementById('task-list-container').style.display = 'block';
+        document.getElementById('post_container').style.display = 'none';
+        document.getElementById('all_posts_container').style.display = 'none';
+    });
 
-    const employeeDetails = document.querySelector('.employee-details');
-    const taskListContainer = document.getElementById('task-list-container');
+    document.getElementById("post-btn").addEventListener("click", function(event) {
+        event.preventDefault();
+        document.querySelector('.employee-details').style.display = 'none';
+        document.getElementById('task-list-container').style.display = 'none';
+        document.getElementById('post_container').style.display = 'block';
+        document.getElementById('all_posts_container').style.display = 'none';
+    });
 
-    if (employeeDetails.style.display === 'none') {
-        employeeDetails.style.display = 'block';  
-        taskListContainer.style.display = 'none';
-    } else {
-        employeeDetails.style.display = 'none';
-        taskListContainer.style.display = 'block';
-    }
-});
-
+    document.getElementById("all-posts-btn").addEventListener("click", function(event) {
+        event.preventDefault();
+        document.querySelector('.employee-details').style.display = 'none';
+        document.getElementById('task-list-container').style.display = 'none';
+        document.getElementById('post_container').style.display = 'none';
+        document.getElementById('all_posts_container').style.display = 'block';
+    });
 </script>
+
 {% endblock %}
 {% endblock %}
+
+
+
