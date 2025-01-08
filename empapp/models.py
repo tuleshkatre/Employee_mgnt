@@ -5,7 +5,7 @@ from datetime import timedelta
 
 class Employee(User):
     phone = models.CharField(max_length=15, unique=True)
-    image = models.ImageField(default='dd.png', blank=True, null=True)
+    image = models.ImageField(blank=True, null=True)
 
 class UserOTP(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name= "otp_info",blank=True, null=True)

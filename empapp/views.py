@@ -1,5 +1,5 @@
 from django.shortcuts import render , redirect , get_object_or_404
-from .forms import EmpCreate , TaskForm , AttendanceForm , PostForm
+from .forms import EmpCreate , TaskForm , AttendanceForm , PostForm , UpdateUserForm
 from .models import Employee , Task , Attendance , CheckInOut , UserOTP , Post
 from django.contrib.auth import authenticate , login as auth_login , logout
 from django.contrib.auth.decorators import login_required
@@ -245,11 +245,20 @@ def show_post(request):
 
     return render(request, 'show_post.html', {'page_obj': page_obj, 'tr_posts': trending_posts})
 
+@login_required
+def update_user(request, id):
+    user_instance = Employee.objects.get(id = id) 
+    if request.method == 'POST':
+        emp_data = UpdateUserForm(data=request.POST , files=request.FILES ,instance = user_instance)
+        if emp_data.is_valid():
+            emp_data.save()
+            return redirect('read')
+    else:
+        emp_data = UpdateUserForm(instance = user_instance)
+    return render(request , 'update_user.html' , {'emp_data':emp_data})
 
 
 
-
-# from django.db.models import Count, F
 
 # posts = Post.objects.annotate(
 #     like_count=Count('liked_by'),

@@ -7,7 +7,8 @@ from empapp import views
 urlpatterns = [
     
     path('admin/', admin.site.urls),
-    path('', views.home, name='home'),
+    path('', include('empapp.urls')),
+    path('home', views.home, name='home'),
     path('create/', views.emp_create, name='create'),
     path('login/', views.user_login, name='login'),
     path('read/', views.read, name='read'),
@@ -17,6 +18,7 @@ urlpatterns = [
     path('like/<int:id>/', views.like, name='like'),
     path('dis_like/<int:id>/', views.dis_like, name='dis_like'),
     path('show_post/', views.show_post, name='show_post'),
+    path('update/<int:id>/', views.update_user, name='update'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

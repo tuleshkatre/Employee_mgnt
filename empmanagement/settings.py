@@ -26,7 +26,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'empapp'
+    'rest_framework',
+    'empapp',
 ]
 
 MIDDLEWARE = [
@@ -107,7 +108,7 @@ USE_TZ = True  # Enables timezone support
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / 'static',]
+# STATICFILES_DIRS = [BASE_DIR / 'static',]
 
 
 # Default primary key field type
@@ -125,3 +126,9 @@ EMAIL_HOST_PASSWORD = 'wdsv vhqn nteg plfx'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}

@@ -23,3 +23,12 @@ class PostForm(forms.ModelForm):
         model = Post
         fields = ['title', 'description']
 
+class UpdateUserForm(forms.ModelForm):
+    class Meta:
+        model = Employee
+        fields = ['username', 'phone', 'email', 'first_name', 'last_name']
+        help_texts = { 'username': None, }
+
+
+
+

@@ -211,13 +211,14 @@
         <a href="{% url 'check_out' %}" class="nav-button">Checkout</a>
         {% comment %} <a href="#" class="nav-button" id="all-posts-btn">All Posts</a> {% endcomment %}
         <a href="{% url 'show_post' %}" class="nav-button">All Posts</a>
+        <a href="{% url 'update' request.user.employee.id %}" class="nav-button">Update Profile</a>
         <a href="{% url 'user_logout' %}" class="nav-button">Logout</a>
     </div>
 </div>
 
 <div class="container">
     <div class="employee-details">
-        <h2>Employee Detail</h2>
+        <h2>Employee Profile</h2>
         {% for emp in data %}
         <div class="employee">
             <p><strong>First Name:</strong> {{ emp.first_name }}</p>
@@ -226,6 +227,8 @@
             <p><strong>Email:</strong> {{ emp.email }}</p>
             <p><strong>Profile Image:</strong></p>
             <img src="{{ emp.image.url }}" alt="{{ emp.first_name }} {{ emp.last_name }}">
+            {% comment %} <a href="{% url 'update' emp.id %}" class="nav-button">Update</a> {% endcomment %}
+
         </div>
         {% endfor %}
     </div>
@@ -319,9 +322,9 @@
                 </form>
             </div>
         </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
     </div>
-</div>
 
 {% block extra_scripts %}
 
@@ -331,6 +334,7 @@
         document.getElementById('task-list-container').style.display = 'none';
         document.getElementById('post_container').style.display = 'none';
         document.getElementById('all_posts_container').style.display = 'none';
+
     });
 
     document.getElementById("load-tasks-btn").addEventListener("click", function(event) {
@@ -347,6 +351,7 @@
         document.getElementById('task-list-container').style.display = 'none';
         document.getElementById('post_container').style.display = 'block';
         document.getElementById('all_posts_container').style.display = 'none';
+
     });
 
     document.getElementById("all-posts-btn").addEventListener("click", function(event) {
@@ -355,7 +360,9 @@
         document.getElementById('task-list-container').style.display = 'none';
         document.getElementById('post_container').style.display = 'none';
         document.getElementById('all_posts_container').style.display = 'block';
+
     });
+
 </script>
 
 {% endblock %}
