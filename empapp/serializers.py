@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Employee
+from .models import Employee , Attendance, Task, Post
 
 class EmployeeSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)  
@@ -21,4 +21,19 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField(required=False, write_only=True)
     otp = serializers.CharField(required=False, write_only=True)
 
+
+class AttendanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Attendance
+        fields = ['employee' , 'date' , 'status']
+
+class TaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = ['employee' , 'title', 'description', 'deadline' , 'status']
+
+class PostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ['id','title' , 'description']
 
