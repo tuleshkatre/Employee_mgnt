@@ -3,7 +3,7 @@ from .models import Employee, Task , Attendance , CheckInOut , UserOTP , Post
 
 @admin.register(Employee)
 class EmloyeeAdmin(admin.ModelAdmin):
-    list_display = ['first_name', 'last_name','phone', 'email']
+    list_display = ['id','first_name', 'last_name','phone', 'email']
 
 @admin.register(UserOTP)
 class UserotpAdmin(admin.ModelAdmin):
