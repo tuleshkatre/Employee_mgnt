@@ -137,11 +137,11 @@ REST_FRAMEWORK = {
     ],
 }
 
-# # In Django settings, ensure you are using the correct header for JWT
 SIMPLE_JWT = {
-    'AUTH_HEADER_TYPES': ('Bearer',),
     'BLACKLIST_AFTER_ROTATION': True,  # Ensure this is True
+    'ROTATE_REFRESH_TOKENS': True,
 }
+
 
 
 

@@ -16,7 +16,6 @@ from django.db.models import Count
 from django.core.paginator import Paginator
 
 
-
 # Function to generate and send OTP
 def generate_and_send_otp(user):
     otp = random.randint(100000, 999999)
@@ -85,6 +84,19 @@ def update_employee(request, id):
         return Response({'error': 'Employee not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
+# Delete view
+@api_view(['POST'])
+@permission_classes([IsAuthenticated]) 
+def delete_employee(request, id):
+    try:
+        employee = Employee.objects.get(id=id)
+        employee.delete()
+        return Response({'message': 'Delete successful!'})
+      
+    except Employee.DoesNotExist:
+        return Response({'error': 'Employee not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
 # Login view
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -142,18 +154,37 @@ def login(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# @api_view(['POST'])
+# # @permission_classes([IsAuthenticated])
+# def logout_view(request):
+#     try:
+#         refresh_token = request.headers.get('refresh').split(' ')[1] 
+#         print(refresh_token)
+        
+#         token = RefreshToken(refresh_token)
+#         token.blacklist()  
+
+#         return JsonResponse({'message': 'Successfully logged out.'}, status=200)
+    
+#     except Exception as e:
+#         return JsonResponse({'error': str(e)}, status=400)
+
+
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def logout_view(request):
     try:
-        refresh_token = request.headers.get('Authorization').split(' ')[1] 
-        print(refresh_token)
+        authorization_header = request.headers.get('Authorization')
         
+        if authorization_header:
+            refresh_token = request.data.get('refresh')
+        else:
+            return JsonResponse({'error': 'Refresh token is missing from the request.'}, status=400)
+
         token = RefreshToken(refresh_token)
-        token.blacklist()  
+        token.blacklist()
 
         return JsonResponse({'message': 'Successfully logged out.'}, status=200)
-    
+
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 
@@ -324,6 +355,9 @@ def show_post(request):
         'current_page': page_obj.number,
         'total_pages': page_obj.paginator.num_pages
     })
+
+
+
 
 
 
