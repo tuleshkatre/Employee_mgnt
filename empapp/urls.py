@@ -1,4 +1,3 @@
-from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings 
 from django.conf.urls.static import static 
@@ -11,7 +10,9 @@ from .genric_api import (
     EmployeeUpdateAPIView , 
     EmployeeDeleteAPIView , 
     Login_view ,
-    EmployeeAttendanceAPIView
+    EmployeeAttendanceAPIView ,
+    EmployeeTaskAPIView , 
+    EmployeePostAPIView
     )
 
 from rest_framework_simplejwt.views import (
@@ -23,11 +24,11 @@ from rest_framework_simplejwt.views import (
 urlpatterns = [
 
 # JWT token endpoints
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/token/' , TokenObtainPairView.as_view() , name='token_obtain_pair'),
+    path('api/token/refresh/' , TokenRefreshView.as_view() , name='token_refresh'),
 
 
-# Custom API endpoints (Function based APi View)
+# Custom API endpoints (Function based APi View) 
     path('api/create_employee/', api.create_employee, name='create_employee'),
     path('api/login/', api.login, name='login'),
     path('api/logout/', api.logout_view, name='logout'),
@@ -51,9 +52,13 @@ urlpatterns = [
     path('gen/employees/<int:pk>/delete/', EmployeeDeleteAPIView.as_view(), name='employee-delete'),
     path('gen/employees/login/', Login_view.as_view(), name='employee-login'),
     path('gen/employees/attendance/', EmployeeAttendanceAPIView.as_view(), name='employee-attendance'),
+    path('gen/employees/task/', EmployeeTaskAPIView.as_view(), name='employee-task'),
+    path('gen/employees/post/', EmployeePostAPIView.as_view(), name='employee-post'),
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
 
 
 

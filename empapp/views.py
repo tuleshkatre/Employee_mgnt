@@ -16,19 +16,34 @@ def home(request):
         return redirect('read')
     return render(request , 'home.html')
 
+
 def emp_create(request):
-    if request.user.is_authenticated:
-        return redirect('read')
-    
     if request.method == 'POST':
         form = EmpCreate(request.POST, request.FILES)
         if form.is_valid():
-            user = form.save(commit=False)
+            # Create User object
+            user = User.objects.create(
+                username=form.cleaned_data['username'],
+                email=form.cleaned_data['email'],
+                first_name=form.cleaned_data['first_name'],
+                last_name=form.cleaned_data['last_name']
+            )
+            # Set password for User object
             user.set_password(form.cleaned_data['password'])
             user.save()
-            return redirect('create')
+
+            # Create Employee object and link it to the User
+            Employee.objects.create(
+                user=user,
+                username=form.cleaned_data['username'],
+                phone=form.cleaned_data['phone'],
+                image=form.cleaned_data.get('image'),
+            )
+
+            return redirect('login')  # Redirect to a relevant page
     else:
         form = EmpCreate()
+
     return render(request, 'Emp_create.html', {'form': form})
 
 def generate_and_send_otp(user):
@@ -54,9 +69,14 @@ def user_login(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
         otp = request.POST.get('otp')
-        user = User.objects.get(email = email)
+
         # Password-based login
         if email and password:
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                return render(request, 'login.html', {'error': 'User with this email does not exist.'})
+
             user = authenticate(request, username=user.username, password=password)
             if user:
                 auth_login(request, user)
@@ -64,6 +84,7 @@ def user_login(request):
             else:
                 return render(request, 'login.html', {'error': 'Invalid email or password.'})
 
+    
         # OTP-based login
         if email and not otp:
             try:
@@ -141,21 +162,21 @@ def read(request):
         })
 
     else:
-        data = Employee.objects.filter(id=request.user.id)
-        tasks = Task.objects.filter(employee=request.user)
+        data = Employee.objects.filter(user=request.user)
+        tasks = Task.objects.filter(employee=request.user.employee)
         all_posts = Post.objects.all()
 
         if request.method == 'POST':
                 post = PostForm(request.POST)
                 if post.is_valid():
                     posts = post.save(commit=False)
-                    posts.employee = Employee.objects.get(id = request.user.id)
+                    posts.employee = Employee.objects.get(user=request.user)
                     posts.save()
                     return redirect('read')
         else:
             post = PostForm()
         return render(request, 'Employee_dashboard.html', {'data': data, 'tasks': tasks , 'post':post , 'all_posts':all_posts})
-        
+
 @login_required
 def user_logout(request):
     logout(request)
@@ -164,7 +185,7 @@ def user_logout(request):
 @login_required
 def check_in(request):
     today = now().date()
-    employee = Employee.objects.get(id = request.user.id)
+    employee = Employee.objects.get(user = request.user)
     check_in_record, created = CheckInOut.objects.get_or_create(employee=employee, date=today)
     if not created and check_in_record.check_in is not None:
         return render(request, 'error.html', {'message': 'You have already checked in for today.'})
@@ -176,7 +197,7 @@ def check_in(request):
 @login_required
 def check_out(request):
     today = now().date()
-    employee = request.user
+    employee = request.user.employee
     try:
         check_in_record = CheckInOut.objects.get(employee=employee, date=today)
         if check_in_record.check_out is not None:
@@ -272,7 +293,6 @@ def update_user(request, id):
 #     like_count=Count('liked_by'),
 #     dislike_count=Count('disliked_by')
 # ).order_by('-like_count', '-dislike_count')[:2] 
-
 
 
 

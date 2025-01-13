@@ -192,7 +192,7 @@
         <tbody>
             {% for task in tasks %}
             <tr>
-                <td>{{ task.employee.username }}</td>
+                <td>{{ task.employee.user.username }}</td>
                 <td>{{ task.title }}</td>
                 <td>{{ task.description }}</td>
                 <td>{{ task.status }}</td>
@@ -234,7 +234,7 @@
         <tbody>
             {% for record in att_list %}
             <tr>
-                <td>{{ record.employee.username }}</td>
+                <td>{{ record.employee.user.username }}</td>
                 <td>{{ record.date }}</td>
                 <td>{{ record.status }}</td>
             </tr>

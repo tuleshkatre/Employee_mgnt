@@ -3,9 +3,20 @@ from django.contrib.auth.models import User
 from django.utils.timezone import now
 from datetime import timedelta
 
-class Employee(User):
+
+class Employee(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name= "employee")
+    username = models.CharField(max_length=15)
+    email = models.EmailField(max_length=15 , default="fff@gmail.com")
+    first_name = models.CharField(max_length=15 , default="fff@gmail.com")
+    last_name = models.CharField(max_length=15 , default="fff@gmail.com")
     phone = models.CharField(max_length=15, unique=True)
     image = models.ImageField(blank=True, null=True)
+    password = models.CharField(max_length=15)
+    
+    def __str__(self):
+        return f"{self.user.first_name}"
+
 
 class UserOTP(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name= "otp_info",blank=True, null=True)
@@ -16,6 +27,7 @@ class UserOTP(models.Model):
         if self.otp_created_at:
             return (now() - self.otp_created_at).total_seconds() <= 600  
         return False
+
 
 class Task(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
@@ -29,14 +41,16 @@ class Task(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
+
 class Attendance(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     date = models.DateField(default= now().date())
     status = models.CharField(max_length= 60 , choices=[('present', 'present'), ('absent', 'absent')] , default='present')
 
+
 class CheckInOut(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
-    date = models.DateField(default=now().date())
+    date = models.DateField(default=now())
     check_in = models.TimeField(blank=True, null=True)
     check_out = models.TimeField(blank=True, null=True)
 
@@ -55,6 +69,7 @@ class CheckInOut(models.Model):
             return working_hours
         return None
 
+
 class Post(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
@@ -66,7 +81,12 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def _str_(self):
-        return self.title
+        return f"{self.employee.user.username}"
+
+
+
+
+
 
 
 
