@@ -25,3 +25,5 @@ class CheckInOutAdmin(admin.ModelAdmin):
 class PostAdmin(admin.ModelAdmin):
     list_display = ['id', 'employee', 'title', 'description' , 'created_at']
 
+
+

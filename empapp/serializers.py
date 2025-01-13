@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Employee , Attendance, Task, Post
 
+
 class EmployeeSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)  
 
@@ -14,7 +15,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
         employee.set_password(password) 
         employee.save()
         return employee
-    
+
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -27,13 +28,15 @@ class AttendanceSerializer(serializers.ModelSerializer):
         model = Attendance
         fields = ['employee' , 'date' , 'status']
 
+
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ['employee' , 'title', 'description', 'deadline' , 'status']
+        fields = ['employee' , 'title' , 'description' , 'deadline' , 'status']
+
 
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = ['id','title' , 'description']
+        fields = ['id' , 'title' , 'description']
 

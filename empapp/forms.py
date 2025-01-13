@@ -2,7 +2,7 @@ from django import forms
 from .models import Employee, Task , Attendance , Post
 
 class EmpCreate(forms.ModelForm):
-    password = forms.CharField()
+    password = forms.CharField(widget=forms.PasswordInput) 
     class Meta:
         model = Employee
         fields = ['username', 'phone', 'email', 'first_name', 'last_name', 'image', 'password']

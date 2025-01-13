@@ -154,22 +154,6 @@ def login(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# @api_view(['POST'])
-# # @permission_classes([IsAuthenticated])
-# def logout_view(request):
-#     try:
-#         refresh_token = request.headers.get('refresh').split(' ')[1] 
-#         print(refresh_token)
-        
-#         token = RefreshToken(refresh_token)
-#         token.blacklist()  
-
-#         return JsonResponse({'message': 'Successfully logged out.'}, status=200)
-    
-#     except Exception as e:
-#         return JsonResponse({'error': str(e)}, status=400)
-
-
 @api_view(['POST'])
 def logout_view(request):
     try:
@@ -236,7 +220,7 @@ def task_view(request):
             serializer.save()
             return Response({'message': 'Task assigned successfully.'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
@@ -260,7 +244,7 @@ def post_view(request):
             serializer.save(employee = employee)
             return Response({'message': 'Post created successfully.'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -355,6 +339,8 @@ def show_post(request):
         'current_page': page_obj.number,
         'total_pages': page_obj.paginator.num_pages
     })
+
+
 
 
 

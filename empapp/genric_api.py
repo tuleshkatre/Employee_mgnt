@@ -8,8 +8,8 @@ from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.models import User
 from django.utils.timezone import now
 from django.core.mail import send_mail
-from .serializers import EmployeeSerializer, LoginSerializer , AttendanceSerializer , TaskSerializer
-from .models import UserOTP, Employee , Attendance , Task
+from .serializers import EmployeeSerializer, LoginSerializer , AttendanceSerializer , TaskSerializer , PostSerializer
+from .models import UserOTP, Employee , Attendance , Task , Post
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import PermissionDenied , ValidationError
 
@@ -127,6 +127,7 @@ class EmployeeAttendanceAPIView(generics.ListCreateAPIView):
         if not self.request.user.is_superuser:
             raise PermissionDenied('Only admins can manage attendance.')
         return Attendance.objects.all()
+    
     def perform_create(self, serializer):
             employee_id = self.request.data.get('employee')
             try:
@@ -140,93 +141,57 @@ class EmployeeAttendanceAPIView(generics.ListCreateAPIView):
 
             serializer.save(employee=employee)
             return Response({'message': 'Attendance marked successfully.'}, status=status.HTTP_201_CREATED)
-
-
-from rest_framework.exceptions import ValidationError, PermissionDenied
-from rest_framework.response import Response
-from rest_framework import status
-
-class EmployeeAttendanceAPIView(generics.ListCreateAPIView):
-    queryset = Attendance.objects.all()
-    serializer_class = AttendanceSerializer
-
-    def get_queryset(self):
-        if not self.request.user.is_superuser:
-            raise PermissionDenied('Only admins can manage attendance.')
-        return Attendance.objects.all()
-
-    def perform_create(self, serializer):
-        employee_id = self.request.data.get('employee')
-        try:
-            employee = Employee.objects.get(id=employee_id)
-        except Employee.DoesNotExist:
-            raise ValidationError('Employee not found.')
-
-        date = serializer.validated_data['date']
-        if Attendance.objects.filter(employee=employee, date=date).exists():
-            raise ValidationError('Attendance for this date already exists.')
-
-        # Save the attendance record
-        serializer.save(employee=employee)
-
+    
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
         response.data['message'] = 'Attendance marked successfully.'
         return response
-
-
-from rest_framework.views import Response
-from rest_framework import status
-from rest_framework.exceptions import ValidationError, PermissionDenied
-
-class EmployeeAttendanceAPIView(generics.ListCreateAPIView):
-    queryset = Attendance.objects.all()
-    serializer_class = AttendanceSerializer
-
-    def get_queryset(self):
-        if not self.request.user.is_superuser:
-            raise PermissionDenied('Only admins can manage attendance.')
-        return Attendance.objects.all()
-
-    def create(self, request, *args, **kwargs):
-        employee_id = request.data.get('employee')
-        try:
-            employee = Employee.objects.get(id=employee_id)
-        except Employee.DoesNotExist:
-            raise ValidationError('Employee not found.')
-
-        date = request.data.get('date')
-        if Attendance.objects.filter(employee=employee, date=date).exists():
-            raise ValidationError('Attendance for this date already exists.')
-
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(employee=employee)
-
-        return Response({'message': 'Attendance marked successfully.'}, status=status.HTTP_201_CREATED)
-
-
-
-def task_view(request):
-    if not request.user.is_superuser:
-        return Response({'error': 'You do not have permission to manage tasks.'}, status=status.HTTP_403_FORBIDDEN)
-
-    if request.method == 'GET':
-        attendances = Task.objects.all()
-        serializer = TaskSerializer(attendances, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    elif request.method == 'POST':
-        serializer = TaskSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'message': 'Task assigned successfully.'}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
 class EmployeeTaskAPIView(generics.ListCreateAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
+
+    def get_queryset(self):
+        if not self.request.user.is_superuser:
+            raise PermissionDenied('Only admins can manage attendance.')
+        return Task.objects.all()
+
+    def perform_create(self, serializer):
+            # serializer = TaskSerializer(data=self.request.data)
+            if serializer.is_valid():
+                serializer.save()
+    
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        response.data['message'] = 'Task Assigned successfully.'
+        return response
+
+
+class EmployeePostAPIView(generics.ListCreateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            raise PermissionDenied('You are not allowed to perform this task.')
+        return Post.objects.all() 
+
+    def perform_create(self, serializer):
+        print(f"User ID: {self.request.user.id}, Username: {self.request.user.username}")
+        try:
+            employee = Employee.objects.get(id=self.request.user.id)
+        except Employee.DoesNotExist:
+            raise ValidationError('Employee not found.')
+
+        serializer.save(employee=employee)
+
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        response.data['message'] = 'Post created successfully.'
+        return response
+
+
 
 
 
