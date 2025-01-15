@@ -12,7 +12,12 @@ from .genric_api import (
     Login_view ,
     EmployeeAttendanceAPIView ,
     EmployeeTaskAPIView , 
-    EmployeePostAPIView
+    EmployeePostAPIView ,
+    EmployeeCheckinAPIView ,
+    EmployeeCheckoutAPIView ,
+    EmployeeLike_DislikeAPIView , 
+    EmployeeShow_PostAPIView ,
+    LogoutAPIView
     )
 
 from rest_framework_simplejwt.views import (
@@ -54,9 +59,16 @@ urlpatterns = [
     path('gen/employees/attendance/', EmployeeAttendanceAPIView.as_view(), name='employee-attendance'),
     path('gen/employees/task/', EmployeeTaskAPIView.as_view(), name='employee-task'),
     path('gen/employees/post/', EmployeePostAPIView.as_view(), name='employee-post'),
+    path('gen/employees/check_in/', EmployeeCheckinAPIView.as_view(), name='employee-check_in'),
+    path('gen/employees/check_out/', EmployeeCheckoutAPIView.as_view(), name='employee-check_out'),
+    path('gen/employees/like_dislike/<int:id>/action/', EmployeeLike_DislikeAPIView.as_view(), name='like_dislike'),
+    path('gen/employees/show_post/', EmployeeShow_PostAPIView.as_view(), name='show_post'),
+    path('gen/employees/logout/', LogoutAPIView.as_view(), name='employee-logout'),
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
 
 
 

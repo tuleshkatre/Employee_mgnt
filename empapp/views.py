@@ -32,19 +32,23 @@ def emp_create(request):
             user.set_password(form.cleaned_data['password'])
             user.save()
 
-            # Create Employee object and link it to the User
+            # Create Employee object and link it to the User 
             Employee.objects.create(
                 user=user,
                 username=form.cleaned_data['username'],
+                first_name=form.cleaned_data['first_name'],
+                last_name=form.cleaned_data['last_name'],
+                email=form.cleaned_data['email'],
                 phone=form.cleaned_data['phone'],
                 image=form.cleaned_data.get('image'),
             )
 
-            return redirect('login')  # Redirect to a relevant page
+            return redirect('login') 
     else:
         form = EmpCreate()
 
     return render(request, 'Emp_create.html', {'form': form})
+
 
 def generate_and_send_otp(user):
     otp = random.randint(100000, 999999)
