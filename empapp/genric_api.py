@@ -9,10 +9,13 @@ from django.contrib.auth.models import User
 from django.utils.timezone import now
 from django.core.mail import send_mail
 from .serializers import EmployeeSerializer, LoginSerializer , AttendanceSerializer , TaskSerializer , PostSerializer
-from .models import UserOTP, Employee , Attendance , Task , Post
+from .models import UserOTP, Employee , Attendance , Task , Post , CheckInOut
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import PermissionDenied , ValidationError
-
+from django.shortcuts import get_object_or_404
+from django.core.paginator import Paginator
+from django.db.models import Count
+from rest_framework_simplejwt.exceptions import TokenError
 
 # List and Create (GET and POST)
 class EmployeeListCreateAPIView(generics.ListCreateAPIView):
@@ -119,6 +122,25 @@ class Login_view(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class LogoutAPIView(APIView):
+    def post(self, request):
+        try:
+            authorization_header = request.headers.get('Authorization')
+            
+            if authorization_header:
+                refresh_token = request.data.get('refresh')
+            else:
+                return Response({'error': 'Refresh token is missing from the request.'}, status=400)
+
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            return Response({'message': 'Successfully logged out.'}, status=200)
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=400)
+
+
 class EmployeeAttendanceAPIView(generics.ListCreateAPIView):
     queryset = Attendance.objects.all()
     serializer_class = AttendanceSerializer
@@ -127,26 +149,26 @@ class EmployeeAttendanceAPIView(generics.ListCreateAPIView):
         if not self.request.user.is_superuser:
             raise PermissionDenied('Only admins can manage attendance.')
         return Attendance.objects.all()
-    
+
     def perform_create(self, serializer):
             employee_id = self.request.data.get('employee')
             try:
                 employee = Employee.objects.get(id=employee_id)
             except Employee.DoesNotExist:
-                return ValidationError('Employee not found')
+                raise ValidationError('Employee not found')
             
             date = serializer.validated_data['date']
             if Attendance.objects.filter(employee=employee, date=date).exists():
-                return ValidationError('Attendance for this date already exists.')
+                raise ValidationError('Attendance for this date already exists.')
 
             serializer.save(employee=employee)
             return Response({'message': 'Attendance marked successfully.'}, status=status.HTTP_201_CREATED)
-    
+
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
         response.data['message'] = 'Attendance marked successfully.'
         return response
-    
+
 
 class EmployeeTaskAPIView(generics.ListCreateAPIView):
     queryset = Task.objects.all()
@@ -154,7 +176,7 @@ class EmployeeTaskAPIView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         if not self.request.user.is_superuser:
-            raise PermissionDenied('Only admins can manage attendance.')
+            raise PermissionDenied('Only admins can manage task.')
         return Task.objects.all()
 
     def perform_create(self, serializer):
@@ -178,9 +200,8 @@ class EmployeePostAPIView(generics.ListCreateAPIView):
         return Post.objects.all() 
 
     def perform_create(self, serializer):
-        print(f"User ID: {self.request.user.id}, Username: {self.request.user.username}")
         try:
-            employee = Employee.objects.get(id=self.request.user.id)
+            employee = Employee.objects.get(user=self.request.user)
         except Employee.DoesNotExist:
             raise ValidationError('Employee not found.')
 
@@ -192,6 +213,143 @@ class EmployeePostAPIView(generics.ListCreateAPIView):
         return response
 
 
+class EmployeeCheckinAPIView(APIView):
+
+    def post(self, request, *args, **kwargs):
+        today = now().date()
+        try:
+            employee = Employee.objects.get(user=request.user)
+        except Employee.DoesNotExist:
+            return Response({'error': 'Employee record not found'}, status=404)
+
+        check_in_record, created = CheckInOut.objects.get_or_create(employee=employee, date=today)
+        if not created and check_in_record.check_in is not None:
+            return Response({'message': 'You have already checked in for today.'}, status=400)
+
+        check_in_record.check_in = now().time()
+        check_in_record.save()
+
+        return Response({'message': 'Check-in successful'})
+
+
+class EmployeeCheckoutAPIView(APIView):
+
+    def post(self, request, *args, **kwargs):
+        today = now().date()
+        employee = self.request.user.employee
+
+        try:
+            check_in_record = CheckInOut.objects.get(employee=employee, date=today)
+            if check_in_record.check_out is not None:
+                return Response({'message': 'You have already checked out for today.'})
+            check_in_record.check_out = now().time()
+            check_in_record.save()
+            return Response({'message': 'Check out successfull'})
+
+        except CheckInOut.DoesNotExist:
+            return Response({'message': 'You must check in before checking out.'})
+
+
+class EmployeeLike_DislikeAPIView(APIView):
+    def post(self, request, *args, **kwargs):
+        if request.user.is_superuser:
+            return Response({'message': 'Admins are not allowed to perform this action'}, status=status.HTTP_403_FORBIDDEN)
+
+        post_id = kwargs.get('id')
+        post = get_object_or_404(Post, id=post_id)
+        user = self.request.user
+        action = request.data.get('action')
+
+        if action not in ['like', 'dislike']:
+            return Response({'error': 'Invalid action. Must be "like" or "dislike".'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if action == 'like':
+            if user in post.liked_by.all():
+                post.liked_by.remove(user)
+                post.likes -= 1
+                message = 'You unliked the post.'
+            else:
+                post.liked_by.add(user)
+                post.likes += 1
+                message = 'You liked the post.'
+                if user in post.disliked_by.all():
+                    post.disliked_by.remove(user)
+                    post.dislikes -= 1
+
+        elif action == 'dislike':
+            if user in post.disliked_by.all():
+                post.disliked_by.remove(user)
+                post.dislikes -= 1
+                message = 'You removed your dislike from the post.'
+            else:
+                post.disliked_by.add(user)
+                post.dislikes += 1
+                message = 'You disliked the post.'
+                if user in post.liked_by.all():
+                    post.liked_by.remove(user)
+                    post.likes -= 1
+
+        post.save()
+        return Response({'message': message, 'likes': post.likes, 'dislikes': post.dislikes}, status=status.HTTP_200_OK)
+
+
+
+##################################   show post api view with two types of view ==>  1) Gneric (ListCreateView)  2) ApiView       #################################
+
+
+
+##  1) Gneric (ListCreateView)
+
+class EmployeeShow_PostAPIView(generics.ListCreateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+
+    def list(self, request, *args, **kwargs):
+        all_posts = Post.objects.all()
+
+        trending_posts = Post.objects.annotate(total_likes=Count('liked_by')).order_by('-total_likes')[:2]
+
+        paginator = Paginator(all_posts, 2) 
+        page_number = self.request.GET.get('page', 1)  
+        page_obj = paginator.get_page(page_number)
+
+        post_serializer = PostSerializer(page_obj, many=True)
+        trending_serializer = PostSerializer(trending_posts, many=True)
+
+        return Response({
+            'posts': post_serializer.data, 
+            'trending_posts': trending_serializer.data, 
+            'total_pages': page_obj.paginator.num_pages, 
+            'current_page': page_obj.number 
+        })
+
+
+
+
+## 2) ApiView    
+
+# class EmployeeShow_PostAPIView(APIView):
+
+#     def get(self , request , *args , **kwags):
+
+#         if self.request.user.is_superuser:
+#             raise PermissionDenied('Admins are not allowed to perform this action')
+#         all_posts = Post.objects.all()
+#         trending_posts = Post.objects.annotate(total_likes=Count('liked_by')).order_by('-total_likes')[:2]
+
+#         paginator = Paginator(all_posts, 2) 
+#         page_number = self.request.GET.get('page', 1)  
+#         page_obj = paginator.get_page(page_number)
+
+#         post_serializer = PostSerializer(page_obj, many=True)
+#         trending_serializer = PostSerializer(trending_posts, many=True)
+
+#         return Response({
+#             'page_obj': post_serializer.data,
+#             'trending_posts': trending_serializer.data,
+#             'current_page': page_obj.number,
+#             'total_pages': page_obj.paginator.num_pages
+#         })
 
 
 

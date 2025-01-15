@@ -42,7 +42,7 @@ def get_tokens_for_user(user):
     }
 
 
-# Create employee view
+# Create employee view 
 @api_view(['POST'])
 def create_employee(request):
     serializer = EmployeeSerializer(data=request.data)
@@ -237,7 +237,7 @@ def post_view(request):
         serializer = PostSerializer(data=request.data)
         if serializer.is_valid():
             try:
-                employee = Employee.objects.get(id=request.user.id)
+                employee = Employee.objects.get(user=request.user)
             except Employee.DoesNotExist:
                 return Response({'error': 'Employee not found.'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -250,7 +250,7 @@ def post_view(request):
 @permission_classes([IsAuthenticated])
 def check_in(request):
     today = now().date()
-    employee = Employee.objects.get(id = request.user.id)
+    employee = Employee.objects.get(user = request.user)
     check_in_record, created = CheckInOut.objects.get_or_create(employee=employee, date=today)
     if not created and check_in_record.check_in is not None:
         return Response({'message': 'You have already checked in for today.'})
@@ -264,7 +264,7 @@ def check_in(request):
 @permission_classes([IsAuthenticated])
 def check_out(request):
     today = now().date()
-    employee = request.user
+    employee = request.user.employee
     try:
         check_in_record = CheckInOut.objects.get(employee=employee, date=today)
         if check_in_record.check_out is not None:

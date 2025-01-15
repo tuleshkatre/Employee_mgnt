@@ -7,12 +7,11 @@ from datetime import timedelta
 class Employee(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name= "employee")
     username = models.CharField(max_length=15)
-    email = models.EmailField(max_length=15 , default="fff@gmail.com")
+    email = models.EmailField(max_length=50 , default="fff@gmail.com")
     first_name = models.CharField(max_length=15 , default="fff@gmail.com")
     last_name = models.CharField(max_length=15 , default="fff@gmail.com")
     phone = models.CharField(max_length=15, unique=True)
     image = models.ImageField(blank=True, null=True)
-    password = models.CharField(max_length=15)
     
     def __str__(self):
         return f"{self.user.first_name}"
