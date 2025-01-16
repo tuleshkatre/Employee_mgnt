@@ -16,29 +16,38 @@ from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator
 from django.db.models import Count
 from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework.permissions import IsAuthenticated
+
 
 # List and Create (GET and POST)
 class EmployeeListCreateAPIView(generics.ListCreateAPIView):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
+    permission_classes = [IsAuthenticated] 
 
 
 # Retrieve (GET by ID)
 class EmployeeRetrieveAPIView(generics.RetrieveAPIView):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
+    permission_classes = [IsAuthenticated] 
+
 
 
 # Update (PUT/PATCH by ID)
 class EmployeeUpdateAPIView(generics.UpdateAPIView):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
+    permission_classes = [IsAuthenticated] 
+
 
 
 # delete (DELETE  by ID)
 class EmployeeDeleteAPIView(generics.DestroyAPIView):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
+    permission_classes = [IsAuthenticated] 
+
 
 
 # Function to generate and send OTP
@@ -123,6 +132,8 @@ class Login_view(APIView):
 
 
 class LogoutAPIView(APIView):
+    permission_classes = [IsAuthenticated] 
+
     def post(self, request):
         try:
             authorization_header = request.headers.get('Authorization')
@@ -144,6 +155,8 @@ class LogoutAPIView(APIView):
 class EmployeeAttendanceAPIView(generics.ListCreateAPIView):
     queryset = Attendance.objects.all()
     serializer_class = AttendanceSerializer
+    permission_classes = [IsAuthenticated] 
+
 
     def get_queryset(self):
         if not self.request.user.is_superuser:
@@ -173,6 +186,8 @@ class EmployeeAttendanceAPIView(generics.ListCreateAPIView):
 class EmployeeTaskAPIView(generics.ListCreateAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticated] 
+
 
     def get_queryset(self):
         if not self.request.user.is_superuser:
@@ -193,6 +208,8 @@ class EmployeeTaskAPIView(generics.ListCreateAPIView):
 class EmployeePostAPIView(generics.ListCreateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated] 
+
 
     def get_queryset(self):
         if self.request.user.is_superuser:
@@ -214,6 +231,8 @@ class EmployeePostAPIView(generics.ListCreateAPIView):
 
 
 class EmployeeCheckinAPIView(APIView):
+    permission_classes = [IsAuthenticated] 
+
 
     def post(self, request, *args, **kwargs):
         today = now().date()
@@ -233,6 +252,8 @@ class EmployeeCheckinAPIView(APIView):
 
 
 class EmployeeCheckoutAPIView(APIView):
+    permission_classes = [IsAuthenticated] 
+
 
     def post(self, request, *args, **kwargs):
         today = now().date()
@@ -251,6 +272,8 @@ class EmployeeCheckoutAPIView(APIView):
 
 
 class EmployeeLike_DislikeAPIView(APIView):
+    permission_classes = [IsAuthenticated] 
+
     def post(self, request, *args, **kwargs):
         if request.user.is_superuser:
             return Response({'message': 'Admins are not allowed to perform this action'}, status=status.HTTP_403_FORBIDDEN)
@@ -296,11 +319,11 @@ class EmployeeLike_DislikeAPIView(APIView):
 
 ##################################   show post api view with two types of view ==>  1) Gneric (ListCreateView)  2) ApiView       #################################
 
-
-
 ##  1) Gneric (ListCreateView)
 
 class EmployeeShow_PostAPIView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated] 
+
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
